@@ -1,0 +1,91 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MimeGame.Client", "MimeGame.Client\MimeGame.Client.csproj", "{648395FB-3A09-4F9E-8C4A-2A250C2529A2}"
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "gulp", "gulp\", "{78449B1F-6BD0-43A3-94DB-AD0A86234BD2}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/gulp"
+		Debug.AspNetCompiler.PhysicalPath = "gulp\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\gulp\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/gulp"
+		Release.AspNetCompiler.PhysicalPath = "gulp\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\gulp\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "50133"
+	EndProjectSection
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "output", "output\", "{1DE342C3-6CF0-4991-A939-AC6532A877BA}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/output"
+		Debug.AspNetCompiler.PhysicalPath = "output\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\output\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/output"
+		Release.AspNetCompiler.PhysicalPath = "output\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\output\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "50132"
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebLibraries", "WebLibraries", "{19B5525E-7491-4672-9F09-8A399BDA7B6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AngularJS", "WebLibraries\AngularJS\AngularJS.csproj", "{815CC797-F742-4C48-8C98-BD7DE050D95A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeMirrorLibrary", "WebLibraries\CodeMirrorLibrary\CodeMirrorLibrary.csproj", "{BBF1829B-3446-4C0D-A75A-9BC713D2A6A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonWebLibraries", "WebLibraries\CommonWebLibraries\CommonWebLibraries.csproj", "{6DA30112-FDBD-4E48-9F52-7268FCE19D25}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{648395FB-3A09-4F9E-8C4A-2A250C2529A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{648395FB-3A09-4F9E-8C4A-2A250C2529A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{648395FB-3A09-4F9E-8C4A-2A250C2529A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{648395FB-3A09-4F9E-8C4A-2A250C2529A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78449B1F-6BD0-43A3-94DB-AD0A86234BD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78449B1F-6BD0-43A3-94DB-AD0A86234BD2}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{78449B1F-6BD0-43A3-94DB-AD0A86234BD2}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{1DE342C3-6CF0-4991-A939-AC6532A877BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DE342C3-6CF0-4991-A939-AC6532A877BA}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DE342C3-6CF0-4991-A939-AC6532A877BA}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{815CC797-F742-4C48-8C98-BD7DE050D95A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{815CC797-F742-4C48-8C98-BD7DE050D95A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{815CC797-F742-4C48-8C98-BD7DE050D95A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{815CC797-F742-4C48-8C98-BD7DE050D95A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBF1829B-3446-4C0D-A75A-9BC713D2A6A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBF1829B-3446-4C0D-A75A-9BC713D2A6A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBF1829B-3446-4C0D-A75A-9BC713D2A6A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBF1829B-3446-4C0D-A75A-9BC713D2A6A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DA30112-FDBD-4E48-9F52-7268FCE19D25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DA30112-FDBD-4E48-9F52-7268FCE19D25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DA30112-FDBD-4E48-9F52-7268FCE19D25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DA30112-FDBD-4E48-9F52-7268FCE19D25}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{815CC797-F742-4C48-8C98-BD7DE050D95A} = {19B5525E-7491-4672-9F09-8A399BDA7B6A}
+		{BBF1829B-3446-4C0D-A75A-9BC713D2A6A1} = {19B5525E-7491-4672-9F09-8A399BDA7B6A}
+		{6DA30112-FDBD-4E48-9F52-7268FCE19D25} = {19B5525E-7491-4672-9F09-8A399BDA7B6A}
+	EndGlobalSection
+EndGlobal

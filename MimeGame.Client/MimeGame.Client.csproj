@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{648395FB-3A09-4F9E-8C4A-2A250C2529A2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MimeGame.Client</RootNamespace>
+    <AssemblyName>MimeGame.Client</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NoStdLib>True</NoStdLib>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="BuildAngular.cs" />
+    <Compile Include="Controllers\TriangleGameController.cs" />
+    <Compile Include="Raphael.cs" />
+    <Compile Include="Scope\Controller\TriangleGameScope.cs" />
+    <Compile Include="Scope\Directive\Canvas\CanvasAssetFrameScope.cs" />
+    <Compile Include="Triangle.cs" />
+    <Compile Include="TriangleGame.cs" />
+    <Compile Include="Utils\CanvasInformation.cs" />
+    <Compile Include="Utils\Constants.cs" />
+    <Compile Include="Controllers\LevelSelectorController.cs" />
+    <Compile Include="Directives\Canvas\CanvasAssetFrameDirective.cs" />
+    <Compile Include="Directives\DraggableDirective.cs" />
+    <Compile Include="Directives\FancyHorizontalListDirective.cs" />
+    <Compile Include="Directives\FancyHorizontalListIndexDirective.cs" />
+    <Compile Include="Directives\FancyListDirective.cs" />
+    <Compile Include="Directives\FancyListIndexDirective.cs" />
+    <Compile Include="Directives\FloatingWindowDirective.cs" />
+    <Compile Include="Directives\ForNextDirective.cs" />
+    <Compile Include="Filters\RoundFilter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scope\BaseScope.cs" />
+    <Compile Include="Scope\Controller\LevelSelectorScope.cs" />
+    <Compile Include="Scope\Directive\FloatingWindowBaseScope.cs" />
+    <Compile Include="Scope\Directive\FloatingWindowPosition.cs" />
+    <Compile Include="Scope\Directive\FloatingWindowScope.cs" />
+    <Compile Include="Services\CreateUIService.cs" />
+    <Compile Include="Utils\Extensions.cs" />
+    <Compile Include="Utils\Help.cs" />
+    <Compile Include="Utils\Point.cs" />
+    <Compile Include="Utils\Pointer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib">
+      <HintPath>$(SolutionDir)packages\Saltarelle.Runtime.2.5.0\tools\Assemblies\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="Saltarelle.jQuery">
+      <HintPath>..\packages\Saltarelle.jQuery.1.10.1\lib\Saltarelle.jQuery.dll</HintPath>
+    </Reference>
+    <Reference Include="Saltarelle.jQuery.UI">
+      <HintPath>..\packages\Saltarelle.jQuery.UI.1.10.1\lib\Saltarelle.jQuery.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="Saltarelle.Web">
+      <HintPath>..\packages\Saltarelle.Web.3.1.0\lib\Saltarelle.Web.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WebLibraries\AngularJS\AngularJS.csproj">
+      <Project>{815CC797-F742-4C48-8C98-BD7DE050D95A}</Project>
+      <Name>AngularJS</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Partials\Areas\TriangleGame.html" />
+    <Content Include="Partials\Areas\LevelSelector.html" />
+    <Content Include="Partials\Directives\fancyHorizontalList.html" />
+    <Content Include="Partials\Directives\fancyHorizontalListIndex.html" />
+    <Content Include="Partials\Directives\fancyList.html" />
+    <Content Include="Partials\Directives\fancyListIndex.html" />
+    <Content Include="Partials\Directives\floatingWindow.html" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" Condition="!Exists('$(SolutionDir)packages\Saltarelle.Compiler.2.5.0\tools\Saltarelle.Compiler.targets')" />
+  <Import Project="$(SolutionDir)packages\Saltarelle.Compiler.2.5.0\tools\Saltarelle.Compiler.targets" Condition="Exists('$(SolutionDir)packages\Saltarelle.Compiler.2.5.0\tools\Saltarelle.Compiler.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
