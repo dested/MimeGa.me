@@ -13,14 +13,14 @@ namespace MimeGame.Client.Utils
             return o;
         }
 
-       
+
         public static void AddEvent(this Element element, string eventName, HtmlEventHandler listener)
         {
             if (element.Me().addEventListener != null)
             {
                 element.AddEventListener(eventName, listener, false);
             }
-            else                                                                                     
+            else
             {
                 element.Me().AttachEvent(eventName, listener);
             }
@@ -70,13 +70,31 @@ namespace MimeGame.Client.Utils
 
         public static List<T> TakeRandom<T>(this List<T> items)
         {
+
+
             var ls = new List<T>(items);
 
-            ls.Sort((a, b) => { return (int)(Math.Round(Math.Random()) - 0.5); });
-            return ls;
-         }
+            int currentIndex = ls.Count,
+             randomIndex;
+            T temporaryValue;
 
- 
+            // While there remain elements to shuffle...
+            while (currentIndex != 0)
+            {
+
+                // Pick a remaining element...
+                randomIndex = (int)Math.Floor(Math.Random() * currentIndex);
+                currentIndex -= 1;
+
+                // And swap it with the current element.
+                temporaryValue = ls[currentIndex];
+                ls[currentIndex] = ls[randomIndex];
+                ls[randomIndex] = temporaryValue;
+            }
+            return ls;
+        }
+
+
         public static string Percent(this int num)
         {
             return num + "%";

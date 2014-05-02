@@ -1,3 +1,8 @@
 ﻿<div ng-controller="TriangleGameController">
-  <div id="cnvGameBoard"></div>
+    <triangle ng-repeat="triangleModel in model.triangleList" 
+              triangle-model="triangleModel"
+              on-mouse-over="callback.onMouseOver(triangle)" 
+              on-mouse-down="callback.onMouseDown(pointer,triangle)">
+        
+    </triangle>
 </div>

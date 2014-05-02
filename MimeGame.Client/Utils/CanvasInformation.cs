@@ -6,7 +6,6 @@ namespace MimeGame.Client.Utils
 {
     public class CanvasInformation
     {
-        private static CanvasElement blackPixel;
         [IntrinsicProperty]
         public RaphaelPaper Context { get; set; }
         [IntrinsicProperty]
@@ -26,7 +25,6 @@ namespace MimeGame.Client.Utils
         {
             if (w == 0) w = 1;
             if (h == 0) h = 1;
-
             return new CanvasInformation(Raphael.CreatePaper(canvas, w, h), jQuery.FromElement(canvas));
         }
     }

@@ -4,7 +4,6 @@
 	global.MimeGame = global.MimeGame || {};
 	global.MimeGame.Client = global.MimeGame.Client || {};
 	global.MimeGame.Client.Directives = global.MimeGame.Client.Directives || {};
-	global.MimeGame.Client.Directives.Canvas = global.MimeGame.Client.Directives.Canvas || {};
 	global.MimeGame.Client.Filters = global.MimeGame.Client.Filters || {};
 	global.MimeGame.Client.Scope = global.MimeGame.Client.Scope || {};
 	global.MimeGame.Client.Scope.Controller = global.MimeGame.Client.Scope.Controller || {};
@@ -12,30 +11,85 @@
 	global.MimeGame.Client.Scope.Directive.Canvas = global.MimeGame.Client.Scope.Directive.Canvas || {};
 	global.MimeGame.Client.Services = global.MimeGame.Client.Services || {};
 	global.MimeGame.Client.Utils = global.MimeGame.Client.Utils || {};
-	global.Triangles = global.Triangles || {};
-	global.Triangles.Utility = global.Triangles.Utility || {};
 	ss.initAssembly($asm, 'MimeGame.Client');
 	////////////////////////////////////////////////////////////////////////////////
-	// MimeGame.Client.TriangleMove
-	var $MimeGame_Client_$TriangleMove = function(location, color) {
-		this.$location = null;
-		this.$color = null;
-		this.$location = location;
-		this.$color = color;
+	// TriangleModel
+	var $TriangleModel = function() {
 	};
-	$MimeGame_Client_$TriangleMove.__typeName = 'MimeGame.Client.$TriangleMove';
+	$TriangleModel.__typeName = 'TriangleModel';
+	$TriangleModel.createInstance = function() {
+		return $TriangleModel.$ctor();
+	};
+	$TriangleModel.transitionTo = function(current, color) {
+		current.transitionToColor = color;
+		current.transitioning = 1;
+	};
+	$TriangleModel.getPopNeighbors = function(current, board) {
+		var neighs;
+		if (current.pointUp) {
+			neighs = $TriangleModel.$pointUpPopNeighbors;
+		}
+		else {
+			neighs = $TriangleModel.$pointDownPopNeighbors;
+		}
+		var result = [];
+		for (var i = 0; i < neighs.length; i++) {
+			var cX = current.x + neighs[i].x;
+			var cY = current.y + neighs[i].y;
+			if (cX >= 0 && cX < board.length && cY >= 0 && cY < board[0].length) {
+				if (ss.isValue(board[cX][cY].color)) {
+					ss.add(result, board[cX][cY]);
+				}
+			}
+		}
+		return result;
+	};
+	$TriangleModel.setCurrentColor = function(triangleModel) {
+		var updated = false;
+		var increase = 15;
+		if (triangleModel.transitioning + increase >= 100) {
+			triangleModel.color = triangleModel.transitionToColor;
+			triangleModel.transitioning = 0;
+			updated = true;
+		}
+		if (triangleModel.transitioning > 0) {
+			triangleModel.color = $MimeGame_Client_Utils_Help.getColor(triangleModel.color, triangleModel.transitionToColor, triangleModel.transitioning += increase);
+			updated = true;
+		}
+		return updated;
+	};
+	$TriangleModel.$ctor = function() {
+		var $this = {};
+		$this.transitionToColor = null;
+		$this.transitioning = 0;
+		$this.selected = false;
+		$this.glow = false;
+		$this.color = null;
+		$this.pointUp = false;
+		$this.y = 0;
+		$this.x = 0;
+		$this.pop = false;
+		return $this;
+	};
+	global.TriangleModel = $TriangleModel;
 	////////////////////////////////////////////////////////////////////////////////
 	// MimeGame.Client.BuildAngular
 	var $MimeGame_Client_BuildAngular = function() {
 	};
 	$MimeGame_Client_BuildAngular.__typeName = 'MimeGame.Client.BuildAngular';
 	$MimeGame_Client_BuildAngular.setup = function() {
+		var stats = new xStats();
+		document.body.appendChild(stats.element);
 		var module = angular.module('MimeGame', ['ui.utils', 'ui.bootstrap']).config(['$httpProvider', $MimeGame_Client_BuildAngular.$buildHttpProvider]).controller($MimeGame_Client_Controllers_$LevelSelectorController.$name, [$MimeGame_Client_BuildAngular.$scopeName, $MimeGame_Client_Services_CreateUIService.name$1, function(scope, createUIService) {
 			return new $MimeGame_Client_Controllers_$LevelSelectorController(scope, createUIService);
-		}]).controller($MimeGame_Client_Controllers_$TriangleGameController.$name, [$MimeGame_Client_BuildAngular.$scopeName, $MimeGame_Client_Services_CreateUIService.name$1, function(scope1) {
-			return new $MimeGame_Client_Controllers_$TriangleGameController(scope1);
+		}]).controller($MimeGame_Client_Controllers_$TriangleGameController.$name, [$MimeGame_Client_BuildAngular.$scopeName, $MimeGame_Client_Services_RaphaelPaperService.name$1, function(scope1, paperService) {
+			return new $MimeGame_Client_Controllers_$TriangleGameController(scope1, paperService);
 		}]).service($MimeGame_Client_Services_CreateUIService.name$1, [$MimeGame_Client_BuildAngular.$compileName, $MimeGame_Client_BuildAngular.$rootScopeName, function(compileService, rootScopeService) {
 			return new $MimeGame_Client_Services_CreateUIService(compileService, rootScopeService);
+		}]).service($MimeGame_Client_Services_RaphaelPaperService.name$1, [function() {
+			return new $MimeGame_Client_Services_RaphaelPaperService();
+		}]).directive($MimeGame_Client_Directives_TriangleDirective.name$1, [$MimeGame_Client_Services_RaphaelPaperService.name$1, function(paperService1) {
+			return new $MimeGame_Client_Directives_TriangleDirective(paperService1);
 		}]).directive($MimeGame_Client_Directives_FancyListDirective.name$1, [function() {
 			return new $MimeGame_Client_Directives_FancyListDirective();
 		}]).directive($MimeGame_Client_Directives_FancyListIndexDirective.name$1, [function() {
@@ -44,8 +98,6 @@
 			return new $MimeGame_Client_Directives_FancyHorizontalListDirective();
 		}]).directive($MimeGame_Client_Directives_FancyHorizontalListIndexDirective.name$1, [function() {
 			return new $MimeGame_Client_Directives_FancyHorizontalListIndexDirective();
-		}]).directive($MimeGame_Client_Directives_Canvas_CanvasAssetFrameDirective.name$1, [function() {
-			return new $MimeGame_Client_Directives_Canvas_CanvasAssetFrameDirective();
 		}]).directive($MimeGame_Client_Directives_DraggableDirective.name$1, [function() {
 			return new $MimeGame_Client_Directives_DraggableDirective();
 		}]).directive($MimeGame_Client_Directives_FloatingWindowDirective.name$1, [function() {
@@ -102,7 +154,7 @@
 	////////////////////////////////////////////////////////////////////////////////
 	// MimeGame.Client.Triangle
 	var $MimeGame_Client_Triangle = function(_x, _y, pointUp, _color) {
-		this.$spacing = 19;
+		this.$spacing = 35;
 		this.$transitionToColor = null;
 		this.transitioning = 0;
 		this.selected = false;
@@ -124,8 +176,8 @@
 	////////////////////////////////////////////////////////////////////////////////
 	// MimeGame.Client.TriangleGame
 	var $MimeGame_Client_TriangleGame = function() {
-		this.$boardHeight = 6;
-		this.$boardWidth = 11;
+		this.$boardHeight = 4;
+		this.$boardWidth = 7;
 		this.$drawTick = 0;
 		this.$myCanvas = null;
 		this.$myTriangleGrid = null;
@@ -179,12 +231,22 @@
 	$MimeGame_Client_Controllers_$LevelSelectorController.__typeName = 'MimeGame.Client.Controllers.$LevelSelectorController';
 	////////////////////////////////////////////////////////////////////////////////
 	// MimeGame.Client.Controllers.TriangleGameController
-	var $MimeGame_Client_Controllers_$TriangleGameController = function(scope) {
+	var $MimeGame_Client_Controllers_$TriangleGameController = function(scope, paperService) {
 		this.$scope = null;
+		this.$paperService = null;
+		this.$boardHeight = 4;
+		this.$boardWidth = 7;
+		this.$drawTick = 0;
 		this.$scope = scope;
+		this.$paperService = paperService;
 		this.$scope.model = $MimeGame_Client_Scope_Controller_TriangleGameScopeModel.$ctor();
 		this.$scope.callback = $MimeGame_Client_Scope_Controller_TriangleGameScopeCallback.$ctor();
-		new $MimeGame_Client_TriangleGame();
+		this.$scope.model.selectedTriangles = [];
+		paperService.create($MimeGame_Client_Controllers_$TriangleGameController.$size.x, $MimeGame_Client_Controllers_$TriangleGameController.$size.y);
+		this.$init();
+		this.$scope.callback.onMouseDown = ss.delegateCombine(this.$scope.callback.onMouseDown, ss.mkdel(this, this.$onMouseDown));
+		this.$scope.callback.onMouseOver = ss.delegateCombine(this.$scope.callback.onMouseOver, ss.mkdel(this, this.$onMouseOver));
+		window.setInterval(ss.mkdel(this, this.$drawBoard), 16);
 	};
 	$MimeGame_Client_Controllers_$TriangleGameController.__typeName = 'MimeGame.Client.Controllers.$TriangleGameController';
 	////////////////////////////////////////////////////////////////////////////////
@@ -297,23 +359,23 @@
 	$MimeGame_Client_Directives_ForNextDirective.__typeName = 'MimeGame.Client.Directives.ForNextDirective';
 	global.MimeGame.Client.Directives.ForNextDirective = $MimeGame_Client_Directives_ForNextDirective;
 	////////////////////////////////////////////////////////////////////////////////
-	// MimeGame.Client.Directives.Canvas.CanvasAssetFrameDirective
-	var $MimeGame_Client_Directives_Canvas_CanvasAssetFrameDirective = function() {
+	// MimeGame.Client.Directives.TriangleDirective
+	var $MimeGame_Client_Directives_TriangleDirective = function(paperService) {
+		this.$paperService = null;
 		this.link = null;
-		this.replace = false;
 		this.restrict = null;
 		this.scope = null;
 		this.template = null;
-		this.transclude = false;
-		this.restrict = 'EA';
-		this.template = '<canvas></canvas>';
-		this.replace = true;
-		this.transclude = true;
-		this.scope = { frame: '=', width: '=', height: '=', inline: '=' };
+		this.$transitioning = 0;
+		this.$myScope = null;
+		this.$paperService = paperService;
+		this.restrict = 'E';
+		this.template = '';
 		this.link = ss.mkdel(this, this.$linkFn);
+		this.scope = { triangleModel: '=', onMouseDown: '&', onMouseOver: '&' };
 	};
-	$MimeGame_Client_Directives_Canvas_CanvasAssetFrameDirective.__typeName = 'MimeGame.Client.Directives.Canvas.CanvasAssetFrameDirective';
-	global.MimeGame.Client.Directives.Canvas.CanvasAssetFrameDirective = $MimeGame_Client_Directives_Canvas_CanvasAssetFrameDirective;
+	$MimeGame_Client_Directives_TriangleDirective.__typeName = 'MimeGame.Client.Directives.TriangleDirective';
+	global.MimeGame.Client.Directives.TriangleDirective = $MimeGame_Client_Directives_TriangleDirective;
 	////////////////////////////////////////////////////////////////////////////////
 	// MimeGame.Client.Filters.RoundFilter
 	var $MimeGame_Client_Filters_RoundFilter = function() {
@@ -391,6 +453,7 @@
 	var $MimeGame_Client_Scope_Controller_TriangleGameScope = function() {
 		this.model = null;
 		this.callback = null;
+		MimeGame.Client.Scope.BaseScope.call(this);
 	};
 	$MimeGame_Client_Scope_Controller_TriangleGameScope.__typeName = 'MimeGame.Client.Scope.Controller.TriangleGameScope';
 	global.MimeGame.Client.Scope.Controller.TriangleGameScope = $MimeGame_Client_Scope_Controller_TriangleGameScope;
@@ -404,6 +467,8 @@
 	};
 	$MimeGame_Client_Scope_Controller_TriangleGameScopeCallback.$ctor = function() {
 		var $this = {};
+		$this.onMouseOver = null;
+		$this.onMouseDown = null;
 		return $this;
 	};
 	global.MimeGame.Client.Scope.Controller.TriangleGameScopeCallback = $MimeGame_Client_Scope_Controller_TriangleGameScopeCallback;
@@ -417,6 +482,9 @@
 	};
 	$MimeGame_Client_Scope_Controller_TriangleGameScopeModel.$ctor = function() {
 		var $this = {};
+		$this.triangleGrid = null;
+		$this.triangleList = null;
+		$this.selectedTriangles = null;
 		return $this;
 	};
 	global.MimeGame.Client.Scope.Controller.TriangleGameScopeModel = $MimeGame_Client_Scope_Controller_TriangleGameScopeModel;
@@ -500,6 +568,17 @@
 	$MimeGame_Client_Scope_Directive_SwingDirection.__typeName = 'MimeGame.Client.Scope.Directive.SwingDirection';
 	global.MimeGame.Client.Scope.Directive.SwingDirection = $MimeGame_Client_Scope_Directive_SwingDirection;
 	////////////////////////////////////////////////////////////////////////////////
+	// MimeGame.Client.Scope.Directive.TriangleDirectiveScope
+	var $MimeGame_Client_Scope_Directive_TriangleDirectiveScope = function() {
+		this.triangleModel = null;
+		this.onMouseDown = null;
+		this.onMouseOver = null;
+		this.element = null;
+		MimeGame.Client.Scope.BaseScope.call(this);
+	};
+	$MimeGame_Client_Scope_Directive_TriangleDirectiveScope.__typeName = 'MimeGame.Client.Scope.Directive.TriangleDirectiveScope';
+	global.MimeGame.Client.Scope.Directive.TriangleDirectiveScope = $MimeGame_Client_Scope_Directive_TriangleDirectiveScope;
+	////////////////////////////////////////////////////////////////////////////////
 	// MimeGame.Client.Scope.Directive.Canvas.CanvasAssetFrameScope
 	var $MimeGame_Client_Scope_Directive_Canvas_CanvasAssetFrameScope = function() {
 		this.inline = false;
@@ -555,6 +634,13 @@
 	};
 	$MimeGame_Client_Services_ManagedScope.__typeName = 'MimeGame.Client.Services.ManagedScope';
 	global.MimeGame.Client.Services.ManagedScope = $MimeGame_Client_Services_ManagedScope;
+	////////////////////////////////////////////////////////////////////////////////
+	// MimeGame.Client.Services.RaphaelPaperService
+	var $MimeGame_Client_Services_RaphaelPaperService = function() {
+		this.$canvas = null;
+	};
+	$MimeGame_Client_Services_RaphaelPaperService.__typeName = 'MimeGame.Client.Services.RaphaelPaperService';
+	global.MimeGame.Client.Services.RaphaelPaperService = $MimeGame_Client_Services_RaphaelPaperService;
 	////////////////////////////////////////////////////////////////////////////////
 	// MimeGame.Client.Utils.CanvasInformation
 	var $MimeGame_Client_Utils_CanvasInformation = function(context, domCanvas) {
@@ -621,9 +707,18 @@
 	$MimeGame_Client_Utils_Extensions.takeRandom = function(T) {
 		return function(items) {
 			var ls = ss.arrayClone(items);
-			ls.sort(function(a, b) {
-				return ss.Int32.trunc(ss.round(Math.random()) - 0.5);
-			});
+			var currentIndex = ls.length, randomIndex;
+			var temporaryValue;
+			// While there remain elements to shuffle...
+			while (currentIndex !== 0) {
+				// Pick a remaining element...
+				randomIndex = ss.Int32.trunc(Math.floor(Math.random() * currentIndex));
+				currentIndex -= 1;
+				// And swap it with the current element.
+				temporaryValue = ls[currentIndex];
+				ls[currentIndex] = ls[randomIndex];
+				ls[randomIndex] = temporaryValue;
+			}
 			return ls;
 		};
 	};
@@ -634,6 +729,63 @@
 		return num + '%';
 	};
 	global.MimeGame.Client.Utils.Extensions = $MimeGame_Client_Utils_Extensions;
+	////////////////////////////////////////////////////////////////////////////////
+	// MimeGame.Client.Utils.Help
+	var $MimeGame_Client_Utils_Help = function() {
+	};
+	$MimeGame_Client_Utils_Help.__typeName = 'MimeGame.Client.Utils.Help';
+	$MimeGame_Client_Utils_Help.getColor = function(_start, _end, _percent) {
+		if (ss.isNullOrUndefined(_start)) {
+			_start = '#FFFFFF';
+		}
+		var hex2Dec = function(_hex) {
+			return parseInt(_hex, 16);
+		};
+		var dec2Hex = function(_dec) {
+			return ((_dec < 16) ? '0' : '') + _dec.toString(16);
+		};
+		_start = _start.substr(1, 7);
+		_end = _end.substr(1, 7);
+		var r1 = hex2Dec(_start.substr(0, 2));
+		var g1 = hex2Dec(_start.substr(2, 2));
+		var b1 = hex2Dec(_start.substr(4, 2));
+		var r2 = hex2Dec(_end.substr(0, 2));
+		var g2 = hex2Dec(_end.substr(2, 2));
+		var b2 = hex2Dec(_end.substr(4, 2));
+		var pc = _percent / 100;
+		var r = ss.Int32.trunc(Math.floor(r1 + pc * (r2 - r1) + 0.5));
+		var g = ss.Int32.trunc(Math.floor(g1 + pc * (g2 - g1) + 0.5));
+		var b = ss.Int32.trunc(Math.floor(b1 + pc * (b2 - b1) + 0.5));
+		return '#' + dec2Hex(r) + dec2Hex(g) + dec2Hex(b);
+	};
+	$MimeGame_Client_Utils_Help.getCursorPosition = function(ev) {
+		if (!!(ev.originalEvent && ev.originalEvent.targetTouches && ev.originalEvent.targetTouches.length > 0)) {
+			ev = ss.cast(ev.originalEvent.targetTouches[0], Event);
+		}
+		return $MimeGame_Client_Utils_Pointer.$ctor(0, 0, ss.unbox(ss.cast((!!ev.wheelDelta ? (ev.wheelDelta / 40) : (!!ev.detail ? -ev.detail : 0)), ss.Int32)), !!ss.referenceEquals(ev.button, 2));
+	};
+	$MimeGame_Client_Utils_Help.getRandomColor = function() {
+		return $MimeGame_Client_Utils_Help.colors[ss.Int32.trunc(Math.random() * $MimeGame_Client_Utils_Help.colors.length)];
+	};
+	$MimeGame_Client_Utils_Help.isPointInTriangle = function(_s, _a, _b, _c) {
+		var asX = _s.x - _a.x;
+		var asY = _s.y - _a.y;
+		var sAb = (_b.x - _a.x) * asY - (_b.y - _a.y) * asX > 0;
+		if ((_c.x - _a.x) * asY - (_c.y - _a.y) * asX > 0 === sAb) {
+			return false;
+		}
+		if ((_c.x - _b.x) * (_s.y - _b.y) - (_c.y - _b.y) * (_s.x - _b.x) > 0 !== sAb) {
+			return false;
+		}
+		return true;
+	};
+	$MimeGame_Client_Utils_Help.log = function(_cont) {
+		var console = $('#txtConsole');
+		var text = console.val();
+		console.val(text + _cont + '\n');
+		console.scrollTop(console[0].scrollHeight - console.height());
+	};
+	global.MimeGame.Client.Utils.Help = $MimeGame_Client_Utils_Help;
 	////////////////////////////////////////////////////////////////////////////////
 	// MimeGame.Client.Utils.Point
 	var $MimeGame_Client_Utils_Point = function() {
@@ -662,64 +814,7 @@
 		return $this;
 	};
 	global.MimeGame.Client.Utils.Pointer = $MimeGame_Client_Utils_Pointer;
-	////////////////////////////////////////////////////////////////////////////////
-	// Triangles.Utility.Help
-	var $Triangles_Utility_Help = function() {
-	};
-	$Triangles_Utility_Help.__typeName = 'Triangles.Utility.Help';
-	$Triangles_Utility_Help.getColor = function(_start, _end, _percent) {
-		if (ss.isNullOrUndefined(_start)) {
-			_start = '#FFFFFF';
-		}
-		var hex2Dec = function(_hex) {
-			return parseInt(_hex, 16);
-		};
-		var dec2Hex = function(_dec) {
-			return ((_dec < 16) ? '0' : '') + _dec.toString(16);
-		};
-		_start = _start.substr(1, 7);
-		_end = _end.substr(1, 7);
-		var r1 = hex2Dec(_start.substr(0, 2));
-		var g1 = hex2Dec(_start.substr(2, 4));
-		var b1 = hex2Dec(_start.substr(4, 6));
-		var r2 = hex2Dec(_end.substr(0, 2));
-		var g2 = hex2Dec(_end.substr(2, 4));
-		var b2 = hex2Dec(_end.substr(4, 6));
-		var pc = _percent / 100;
-		var r = ss.Int32.trunc(Math.floor(r1 + pc * (r2 - r1) + 0.5));
-		var g = ss.Int32.trunc(Math.floor(g1 + pc * (g2 - g1) + 0.5));
-		var b = ss.Int32.trunc(Math.floor(b1 + pc * (b2 - b1) + 0.5));
-		return '#' + dec2Hex(r) + dec2Hex(g) + dec2Hex(b);
-	};
-	$Triangles_Utility_Help.getCursorPosition = function(ev) {
-		if (!!(ev.originalEvent && ev.originalEvent.targetTouches && ev.originalEvent.targetTouches.length > 0)) {
-			ev = ss.cast(ev.originalEvent.targetTouches[0], Event);
-		}
-		return $MimeGame_Client_Utils_Pointer.$ctor(0, 0, ss.unbox(ss.cast((!!ev.wheelDelta ? (ev.wheelDelta / 40) : (!!ev.detail ? -ev.detail : 0)), ss.Int32)), !!ss.referenceEquals(ev.Button, 2));
-	};
-	$Triangles_Utility_Help.getRandomColor = function() {
-		return $Triangles_Utility_Help.colors[ss.Int32.trunc(Math.random() * $Triangles_Utility_Help.colors.length)];
-	};
-	$Triangles_Utility_Help.isPointInTriangle = function(_s, _a, _b, _c) {
-		var asX = _s.x - _a.x;
-		var asY = _s.y - _a.y;
-		var sAb = (_b.x - _a.x) * asY - (_b.y - _a.y) * asX > 0;
-		if ((_c.x - _a.x) * asY - (_c.y - _a.y) * asX > 0 === sAb) {
-			return false;
-		}
-		if ((_c.x - _b.x) * (_s.y - _b.y) - (_c.y - _b.y) * (_s.x - _b.x) > 0 !== sAb) {
-			return false;
-		}
-		return true;
-	};
-	$Triangles_Utility_Help.log = function(_cont) {
-		var console = $('#txtConsole');
-		var text = console.val();
-		console.val(text + _cont + '\n');
-		console.scrollTop(console[0].scrollHeight - console.height());
-	};
-	global.Triangles.Utility.Help = $Triangles_Utility_Help;
-	ss.initClass($MimeGame_Client_$TriangleMove, $asm, {});
+	ss.initClass($TriangleModel, $asm, {});
 	ss.initClass($MimeGame_Client_BuildAngular, $asm, {});
 	ss.initClass($MimeGame_Client_RaphaelBoundingBox, $asm, {});
 	ss.initClass($MimeGame_Client_Triangle, $asm, {
@@ -730,7 +825,7 @@
 				this.transitioning = 0;
 			}
 			if (this.transitioning > 0) {
-				return $Triangles_Utility_Help.getColor(this.color, this.$transitionToColor, this.transitioning += increase);
+				return $MimeGame_Client_Utils_Help.getColor(this.color, this.$transitionToColor, this.transitioning += increase);
 			}
 			return this.color;
 		},
@@ -739,27 +834,8 @@
 			this.transitioning = 1;
 		},
 		draw: function(_context) {
-			var strokeStyle = '';
-			var lineWidth = 0;
-			//worst code
-			if (this.selected) {
-				strokeStyle = '#FAFAFA';
-			}
-			else if (this.glow) {
-				strokeStyle = 'gold';
-			}
-			else {
-				strokeStyle = 'black';
-			}
-			if (this.selected) {
-				lineWidth = 5;
-			}
-			else if (this.glow) {
-				lineWidth = 4;
-			}
-			else {
-				lineWidth = 3;
-			}
+			var strokeStyle = (this.selected ? '#FAFAFA' : (this.glow ? 'gold' : 'black'));
+			var lineWidth = (this.selected ? 18 : (this.glow ? 16 : 14));
 			var currentColor = this.getCurrentColor();
 			if (ss.isNullOrUndefined(currentColor)) {
 				if (ss.isValue(this.element)) {
@@ -768,35 +844,25 @@
 				this.element = null;
 				return;
 			}
-			//  _context.ShadowColor ="black";
-			//  _context.ShadowBlur = 20;
-			//  _context.ShadowOffsetX = ((mouseX - TriangleGame.Offset.X - TriangleGame.Size.X / 2.0) / TriangleLength / 2)*5;
-			//  _context.ShadowOffsetY = ((mouseY - TriangleGame.Offset.Y - TriangleGame.Size.Y / 2.0) / TriangleLength)*5;
 			var fillStyle = currentColor;
 			if (ss.isNullOrUndefined(this.element)) {
 				if (this.pointUp) {
 					var x = this.x / 2;
 					var y = this.y;
-					var xxx = x * 60 + x * this.$spacing - this.$spacing / 2 + $MimeGame_Client_TriangleGame.offset.x;
-					var yyy = y * $MimeGame_Client_Triangle.triangleLength + ss.Int32.div(y * this.$spacing, 2) + $MimeGame_Client_TriangleGame.offset.y;
-					if (this.selected) {
-						//  ctx.rotate((cur+=3)*Math.PI/180); 
-					}
-					this.element = _context.path('M' + xxx + ' ' + yyy + 'L' + (xxx + 30) + ' ' + (yyy + $MimeGame_Client_Triangle.triangleLength) + 'L' + (xxx - 30) + ' ' + (yyy + $MimeGame_Client_Triangle.triangleLength) + 'L' + xxx + ' ' + yyy);
+					var xxx = x * 150 + x * this.$spacing - this.$spacing / 2 + $MimeGame_Client_TriangleGame.offset.x;
+					var yyy = y * $MimeGame_Client_Triangle.triangleLength + ss.Int32.div(y * (this.$spacing - 3), 2) + $MimeGame_Client_TriangleGame.offset.y;
+					this.element = _context.path('M' + xxx + ' ' + yyy + 'L' + (xxx + 75) + ' ' + (yyy + $MimeGame_Client_Triangle.triangleLength) + 'L' + (xxx - 75) + ' ' + (yyy + $MimeGame_Client_Triangle.triangleLength) + 'L' + xxx + ' ' + yyy);
 				}
 				else {
 					var x1 = (this.x - 1) / 2;
 					var y1 = this.y;
-					var xxx1 = x1 * 60 + x1 * this.$spacing + $MimeGame_Client_TriangleGame.offset.x;
-					var yyy1 = y1 * $MimeGame_Client_Triangle.triangleLength + ss.Int32.div(y1 * this.$spacing, 2) + $MimeGame_Client_TriangleGame.offset.y;
-					if (this.selected) {
-						//  ctx.rotate((cur+=3)*Math.PI/180); 
-					}
-					this.element = _context.path('M' + xxx1 + ' ' + yyy1 + 'L' + (xxx1 + 60) + ' ' + yyy1 + 'L' + (xxx1 + 30) + ' ' + (yyy1 + $MimeGame_Client_Triangle.triangleLength) + 'L' + xxx1 + ' ' + yyy1);
+					var xxx1 = x1 * 150 + x1 * this.$spacing + $MimeGame_Client_TriangleGame.offset.x;
+					var yyy1 = y1 * $MimeGame_Client_Triangle.triangleLength + ss.Int32.div(y1 * (this.$spacing - 3), 2) + $MimeGame_Client_TriangleGame.offset.y;
+					this.element = _context.path('M' + xxx1 + ' ' + yyy1 + 'L' + (xxx1 + 150) + ' ' + yyy1 + 'L' + (xxx1 + 75) + ' ' + (yyy1 + $MimeGame_Client_Triangle.triangleLength) + 'L' + xxx1 + ' ' + yyy1);
 				}
 				this.element.attr({ 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
 				this.element.mousedown(ss.mkdel(this, function(e) {
-					var pointer = $Triangles_Utility_Help.getCursorPosition(e);
+					var pointer = $MimeGame_Client_Utils_Help.getCursorPosition(e);
 					$MimeGame_Client_TriangleGame.instance.mouseDown(pointer, this);
 				}));
 				this.element.mouseover(ss.mkdel(this, function(e1) {
@@ -804,7 +870,7 @@
 				}));
 				var touched;
 				this.element.touchstart(ss.mkdel(this, function(e2) {
-					var pointer1 = $Triangles_Utility_Help.getCursorPosition(e2);
+					var pointer1 = $MimeGame_Client_Utils_Help.getCursorPosition(e2);
 					touched = true;
 					window.setTimeout(ss.mkdel(this, function() {
 						if (touched) {
@@ -825,101 +891,30 @@
 					e4.preventDefault();
 				}));
 			}
-			lineWidth *= 2;
 			this.element.attr({ fill: fillStyle, 'stroke-width': lineWidth, stroke: strokeStyle });
-			//
-			//
-			//                        if (Glow) {
-			//
-			//
-			//                        _context.LineWidth = 8;
-			//
-			//
-			//                        if (transitioning > 0) _context.StrokeStyle = "white";
-			//
-			//
-			//                        else _context.StrokeStyle = "black";
-			//
-			//
-			//                        _context.Stroke();
-			//
-			//
-			//                        _context.LineWidth = 4;
-			//
-			//
-			//                        _context.StrokeStyle = "gold";
-			//
-			//
-			//                        _context.Stroke();
-			//
-			//
-			//                        } else if (Selected) {
-			//
-			//
-			//                        _context.Stroke();
-			//
-			//
-			//                        _context.LineWidth = 4;
-			//
-			//
-			//                        _context.StrokeStyle = "black";
-			//
-			//
-			//                        _context.Stroke();
-			//
-			//
-			//                        } else
-			//
-			//
-			//                        _context.Stroke();
-			//
-			//
-			//                        
-			//
-			//
-			//                        if (( Neighbors || HighlightedNeighbors ) && !Glow) {
-			//
-			//
-			//                        _context.LineWidth = 2;
-			//
-			//
-			//                        _context.StrokeStyle = "#345782";
-			//
-			//
-			//                        _context.Stroke();
-			//
-			//
-			//                        }
-			//
-			//
-			//                        if (Neighbors) {
-			//
-			//
-			//                        _context.StrokeStyle = "black";
-			//
-			//
-			//                        _context.LineWidth = 9;
-			//
-			//
-			//                        _context.Stroke();
-			//
-			//
-			//                        
-			//
-			//
-			//                        _context.StrokeStyle = "white";
-			//
-			//
-			//                        _context.LineWidth = 4;
-			//
-			//
-			//                        _context.Stroke();
-			//
-			//
-			//                        }
 		},
 		pop: function() {
 			this.color = null;
+		},
+		getPopNeighbors: function(_board) {
+			var neighs;
+			if (this.pointUp) {
+				neighs = $MimeGame_Client_Triangle.$pointUpPopNeighbors;
+			}
+			else {
+				neighs = $MimeGame_Client_Triangle.$pointDownPopNeighbors;
+			}
+			var result = [];
+			for (var i = 0; i < neighs.length; i++) {
+				var cX = this.x + neighs[i].x;
+				var cY = this.y + neighs[i].y;
+				if (cX >= 0 && cX < _board.length && cY >= 0 && cY < _board[0].length) {
+					if (ss.isValue(_board[cX][cY].color)) {
+						ss.add(result, _board[cX][cY]);
+					}
+				}
+			}
+			return result;
 		},
 		getNeighbors: function(_board) {
 			var neighs;
@@ -956,7 +951,7 @@
 				for (var l = 0; l < this.$myTriangleList.length; l++) {
 					if (ss.referenceEquals(this.$myTriangleList[l], triangle)) {
 						if (this.$myTriangleList[l].selected === true) {
-							this.$myTriangleList[l].selected = false;
+							this.$myTriangleList[l].pop();
 						}
 						else {
 							this.$myTriangleList[l].selected = true;
@@ -969,7 +964,7 @@
 			}
 		},
 		$dropTriangles: function() {
-			if (this.$drawTick % 3 !== 0) {
+			if (this.$drawTick % 8 !== 0) {
 				return;
 			}
 			var didPointUp = false;
@@ -1002,10 +997,10 @@
 					return noMoves;
 				}
 				if (y === 0 && !current.pointUp) {
-					current.transitionTo($Triangles_Utility_Help.getRandomColor());
+					current.transitionTo($MimeGame_Client_Utils_Help.getRandomColor());
 					return noMoves;
 				}
-				var neighbors = current.getNeighbors(this.$myTriangleGrid);
+				var neighbors = current.getPopNeighbors(this.$myTriangleGrid);
 				var $t1 = $MimeGame_Client_Utils_Extensions.takeRandom($MimeGame_Client_Triangle).call(null, neighbors);
 				for (var $t2 = 0; $t2 < $t1.length; $t2++) {
 					var neighbor = $t1[$t2];
@@ -1028,7 +1023,7 @@
 				}
 				if (ss.isNullOrUndefined(current.color) && current.transitioning === 0) {
 					if (y === 0) {
-						current.transitionTo($Triangles_Utility_Help.getRandomColor());
+						current.transitionTo($MimeGame_Client_Utils_Help.getRandomColor());
 					}
 					else {
 						bad.$ = true;
@@ -1047,7 +1042,7 @@
 				for (var x1 = 0; x1 < this.$boardWidth; x1++) {
 					var off = ((y % 2 === 0) ? 1 : 0);
 					var off2 = (x1 + off) % 2 === 0;
-					var tri = new $MimeGame_Client_Triangle(x1, y, off2, $Triangles_Utility_Help.getRandomColor());
+					var tri = new $MimeGame_Client_Triangle(x1, y, off2, $MimeGame_Client_Utils_Help.getRandomColor());
 					this.$myTriangleGrid[x1][y] = tri;
 					ss.add(this.$myTriangleList, tri);
 				}
@@ -1056,7 +1051,6 @@
 		$drawBoard: function() {
 			this.$drawTick++;
 			this.$dropTriangles();
-			this.$myCanvas.canvas.style.backgroundColor = '#343434';
 			for (var l = 0; l < this.$myTriangleList.length; l++) {
 				this.$myTriangleList[l].draw(this.$myCanvas.context);
 			}
@@ -1064,7 +1058,144 @@
 	});
 	ss.initClass($MimeGame_Client_TrianglePiece, $asm, {});
 	ss.initClass($MimeGame_Client_Controllers_$LevelSelectorController, $asm, {});
-	ss.initClass($MimeGame_Client_Controllers_$TriangleGameController, $asm, {});
+	ss.initClass($MimeGame_Client_Controllers_$TriangleGameController, $asm, {
+		$onMouseDown: function(pointer, triangle) {
+			if (!pointer.right) {
+				for (var l = 0; l < this.$scope.model.triangleList.length; l++) {
+					if (ss.referenceEquals(this.$scope.model.triangleList[l], triangle)) {
+						if (this.$scope.model.triangleList[l].selected === true) {
+							ss.remove(this.$scope.model.selectedTriangles, triangle);
+							this.$scope.model.triangleList[l].selected = false;
+						}
+						else {
+							ss.add(this.$scope.model.selectedTriangles, triangle);
+							this.$scope.model.triangleList[l].selected = true;
+						}
+					}
+				}
+			}
+			else {
+				for (var $t1 = 0; $t1 < this.$scope.model.selectedTriangles.length; $t1++) {
+					var selectedTriangle = this.$scope.model.selectedTriangles[$t1];
+					selectedTriangle.pop = true;
+				}
+				ss.clear(this.$scope.model.selectedTriangles);
+			}
+			this.$scope.$digest();
+		},
+		$onMouseOver: function(triangle) {
+			for (var l = 0; l < this.$scope.model.triangleList.length; l++) {
+				this.$scope.model.triangleList[l].glow = false;
+				if (ss.referenceEquals(this.$scope.model.triangleList[l], triangle)) {
+					this.$scope.model.triangleList[l].glow = true;
+				}
+			}
+			this.$scope.$digest();
+		},
+		$init: function() {
+			this.$scope.model.triangleList = [];
+			this.$scope.model.triangleGrid = new Array(this.$boardWidth);
+			for (var x = 0; x < this.$boardWidth; x++) {
+				this.$scope.model.triangleGrid[x] = new Array(this.$boardHeight);
+			}
+			for (var y = 0; y < this.$boardHeight; y++) {
+				for (var x1 = 0; x1 < this.$boardWidth; x1++) {
+					var off = ((y % 2 === 0) ? 1 : 0);
+					var off2 = (x1 + off) % 2 === 0;
+					var $t1 = $TriangleModel.$ctor();
+					$t1.x = x1;
+					$t1.y = y;
+					$t1.pointUp = off2;
+					$t1.color = $MimeGame_Client_Utils_Help.getRandomColor();
+					var tri = $t1;
+					this.$scope.model.triangleGrid[x1][y] = tri;
+					ss.add(this.$scope.model.triangleList, tri);
+				}
+			}
+		},
+		$drawBoard: function() {
+			this.$drawTick++;
+			var update = this.$dropTriangles();
+			for (var $t1 = 0; $t1 < this.$scope.model.triangleList.length; $t1++) {
+				var triangleModel = this.$scope.model.triangleList[$t1];
+				var currentColor = $TriangleModel.setCurrentColor(triangleModel);
+				update = update || currentColor;
+			}
+			if (update) {
+				this.$scope.$digest();
+			}
+		},
+		$dropTriangles: function() {
+			if (this.$drawTick % 8 !== 0) {
+				return false;
+			}
+			var didPointUp = false;
+			var bad = { $: true };
+			while (bad.$) {
+				bad.$ = false;
+				var noMoves = true;
+				for (var y = this.$boardHeight - 1; y >= 0; y--) {
+					var poppedThisRow = { $: false };
+					for (var x = ss.Int32.div(this.$boardWidth, 2); x >= 0; x--) {
+						noMoves = this.$popTris(x, y, didPointUp, noMoves, poppedThisRow, bad);
+					}
+					for (var x1 = ss.Int32.div(this.$boardWidth, 2); x1 < this.$boardWidth; x1++) {
+						noMoves = this.$popTris(x1, y, didPointUp, noMoves, poppedThisRow, bad);
+					}
+					if (poppedThisRow.$) {
+						return true;
+					}
+				}
+				if (noMoves && didPointUp) {
+					break;
+				}
+				didPointUp = true;
+			}
+			return false;
+		},
+		$popTris: function(x, y, didPointUp, noMoves, poppedThisRow, bad) {
+			var current = this.$scope.model.triangleGrid[x][y];
+			if (ss.isNullOrUndefined(current.color) && current.transitioning === 0) {
+				if (!current.pointUp && didPointUp) {
+					return noMoves;
+				}
+				if (y === 0 && !current.pointUp) {
+					$TriangleModel.transitionTo(current, $MimeGame_Client_Utils_Help.getRandomColor());
+					return noMoves;
+				}
+				var neighbors = $TriangleModel.getPopNeighbors(current, this.$scope.model.triangleGrid);
+				var $t1 = $MimeGame_Client_Utils_Extensions.takeRandom($TriangleModel).call(null, neighbors);
+				for (var $t2 = 0; $t2 < $t1.length; $t2++) {
+					var neighbor = $t1[$t2];
+					if (neighbor.y === current.y) {
+						if (!neighbor.pointUp && current.pointUp) {
+							$TriangleModel.transitionTo(current, neighbor.color);
+							neighbor.pop = true;
+							noMoves = false;
+							poppedThisRow.$ = true;
+							break;
+						}
+					}
+					else if (neighbor.y < current.y) {
+						$TriangleModel.transitionTo(current, neighbor.color);
+						neighbor.pop = true;
+						noMoves = false;
+						poppedThisRow.$ = true;
+						break;
+					}
+				}
+				if (ss.isNullOrUndefined(current.color) && current.transitioning === 0) {
+					if (y === 0) {
+						$TriangleModel.transitionTo(current, $MimeGame_Client_Utils_Help.getRandomColor());
+					}
+					else {
+						bad.$ = true;
+					}
+				}
+			}
+			return noMoves;
+		}
+	});
 	ss.initClass($MimeGame_Client_Directives_DraggableDirective, $asm, {
 		$linkFn: function(scope, element, attrs) {
 			element.draggable({ cancel: '.window .inner-window' });
@@ -1296,22 +1427,80 @@
 			element.attr('for', id);
 		}
 	});
-	ss.initClass($MimeGame_Client_Directives_Canvas_CanvasAssetFrameDirective, $asm, {
-		$linkFn: function(scope, element, attr) {
-			element.width(scope.width);
-			element.height(scope.height);
-			element[0].style.display = (scope.inline ? 'inline-block' : 'block');
-			var $t1 = element[0];
-			var context = ss.cast(ss.cast($t1, ss.isValue($t1) && (ss.isInstanceOfType($t1, Element) && $t1.tagName === 'CANVAS')).getContext('2d'), CanvasRenderingContext2D);
-			var updateFrame = function() {
-				context.canvas.width = context.canvas.width;
-				context.webkitImageSmoothingEnabled = false;
-				context.mozImageSmoothingEnabled = false;
-				context.imageSmoothingEnabled = false;
-			};
-			scope.$watch('frame', updateFrame);
-			scope.$watch('frame.width', updateFrame);
-			scope.$watch('frame.height', updateFrame);
+	ss.initClass($MimeGame_Client_Directives_TriangleDirective, $asm, {
+		$linkFn: function(scope, element, attrs) {
+			this.$myScope = scope;
+			scope.$watch('triangleModel', ss.mkdel(this, function() {
+				if (scope.triangleModel.pop) {
+					scope.triangleModel.color = null;
+					scope.triangleModel.selected = false;
+					scope.triangleModel.glow = false;
+					scope.element.remove();
+					scope.element = null;
+					scope.triangleModel.pop = false;
+				}
+				this.$update(scope);
+			}), true);
+		},
+		$update: function(scope) {
+			var triangleModel = scope.triangleModel;
+			if (ss.isNullOrUndefined(triangleModel)) {
+				return;
+			}
+			var strokeStyle = (triangleModel.selected ? '#FAFAFA' : (triangleModel.glow ? 'gold' : 'black'));
+			var lineWidth = (triangleModel.selected ? 18 : (triangleModel.glow ? 16 : 14));
+			var currentColor = triangleModel.color;
+			if (ss.isNullOrUndefined(currentColor)) {
+				return;
+			}
+			var fillStyle = currentColor;
+			if (ss.isNullOrUndefined(scope.element)) {
+				if (triangleModel.pointUp) {
+					var x = triangleModel.x / 2;
+					var y = triangleModel.y;
+					var xxx = x * 150 + x * 35 - 17.5 + $MimeGame_Client_Controllers_$TriangleGameController.$offset.x;
+					var yyy = y * $MimeGame_Client_Directives_TriangleDirective.$triangleLength + ss.Int32.div(y * 32, 2) + $MimeGame_Client_Controllers_$TriangleGameController.$offset.y;
+					scope.element = this.$paperService.getCanvas().context.path('M' + xxx + ' ' + yyy + 'L' + (xxx + 75) + ' ' + (yyy + $MimeGame_Client_Directives_TriangleDirective.$triangleLength) + 'L' + (xxx - 75) + ' ' + (yyy + $MimeGame_Client_Directives_TriangleDirective.$triangleLength) + 'L' + xxx + ' ' + yyy);
+				}
+				else {
+					var x1 = (triangleModel.x - 1) / 2;
+					var y1 = triangleModel.y;
+					var xxx1 = x1 * 150 + x1 * 35 + $MimeGame_Client_Controllers_$TriangleGameController.$offset.x;
+					var yyy1 = y1 * $MimeGame_Client_Directives_TriangleDirective.$triangleLength + ss.Int32.div(y1 * 32, 2) + $MimeGame_Client_Controllers_$TriangleGameController.$offset.y;
+					scope.element = this.$paperService.getCanvas().context.path('M' + xxx1 + ' ' + yyy1 + 'L' + (xxx1 + 150) + ' ' + yyy1 + 'L' + (xxx1 + 75) + ' ' + (yyy1 + $MimeGame_Client_Directives_TriangleDirective.$triangleLength) + 'L' + xxx1 + ' ' + yyy1);
+				}
+				scope.element.attr({ 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+				scope.element.mousedown(function(e) {
+					var pointer = $MimeGame_Client_Utils_Help.getCursorPosition(e);
+					scope.onMouseDown({ pointer: pointer, triangle: scope.triangleModel });
+				});
+				scope.element.mouseover(function(e1) {
+					scope.onMouseOver({ triangle: scope.triangleModel });
+				});
+				var touched;
+				scope.element.touchstart(function(e2) {
+					var pointer1 = $MimeGame_Client_Utils_Help.getCursorPosition(e2);
+					touched = true;
+					window.setTimeout(function() {
+						if (touched) {
+							pointer1.right = true;
+							scope.onMouseDown({ pointer: pointer1, triangle: scope.triangleModel });
+						}
+					}, 500);
+					//right click
+					scope.onMouseDown({ pointer: pointer1, triangle: scope.triangleModel });
+					e2.preventDefault();
+				});
+				scope.element.touchend(function(e3) {
+					touched = false;
+					e3.preventDefault();
+				});
+				scope.element.touchmove(function(e4) {
+					scope.onMouseOver({ triangle: scope.triangleModel });
+					e4.preventDefault();
+				});
+			}
+			scope.element.attr({ fill: fillStyle, 'stroke-width': lineWidth, stroke: strokeStyle });
 		}
 	});
 	ss.initClass($MimeGame_Client_Filters_RoundFilter, $asm, {
@@ -1331,13 +1520,14 @@
 	ss.initClass($MimeGame_Client_Scope_Controller_LevelSelectorScope, $asm, {}, $MimeGame_Client_Scope_Directive_FloatingWindowBaseScope);
 	ss.initClass($MimeGame_Client_Scope_Controller_LevelSelectorScopeCallback, $asm, {});
 	ss.initClass($MimeGame_Client_Scope_Controller_LevelSelectorScopeModel, $asm, {});
-	ss.initClass($MimeGame_Client_Scope_Controller_TriangleGameScope, $asm, {});
+	ss.initClass($MimeGame_Client_Scope_Controller_TriangleGameScope, $asm, {}, MimeGame.Client.Scope.BaseScope);
 	ss.initClass($MimeGame_Client_Scope_Controller_TriangleGameScopeCallback, $asm, {});
 	ss.initClass($MimeGame_Client_Scope_Controller_TriangleGameScopeModel, $asm, {});
 	ss.initClass($MimeGame_Client_Scope_Directive_FloatingWindowPosition, $asm, {});
 	ss.initClass($MimeGame_Client_Scope_Directive_FloatingWindowScope, $asm, {}, MimeGame.Client.Scope.BaseScope);
 	ss.initClass($MimeGame_Client_Scope_Directive_Size, $asm, {});
 	ss.initEnum($MimeGame_Client_Scope_Directive_SwingDirection, $asm, { topLeft: 0, top: 1, topRight: 2, right: 3, bottomRight: 4, bottom: 5, bottomLeft: 6, left: 7 });
+	ss.initClass($MimeGame_Client_Scope_Directive_TriangleDirectiveScope, $asm, {}, MimeGame.Client.Scope.BaseScope);
 	ss.initClass($MimeGame_Client_Scope_Directive_Canvas_CanvasAssetFrameScope, $asm, {}, $MimeGame_Client_Services_ManagedScope);
 	ss.initClass($MimeGame_Client_Services_CreateUIService, $asm, {
 		create$1: function(T) {
@@ -1427,32 +1617,44 @@
 			return new (ss.makeGenericType($MimeGame_Client_Services_CreatedUI$1, [$MimeGame_Client_Services_ManagedScope]))(scope, item);
 		}
 	});
+	ss.initClass($MimeGame_Client_Services_RaphaelPaperService, $asm, {
+		create: function(width, height) {
+			var div = document.createElement('div');
+			document.body.appendChild(div);
+			this.$canvas = $MimeGame_Client_Utils_CanvasInformation.create(div, width, height);
+			$MimeGame_Client_Utils_Extensions.addEvent(this.$canvas.canvas, 'contextmenu', function(evt) {
+				evt.preventDefault();
+			});
+		},
+		getCanvas: function() {
+			return this.$canvas;
+		}
+	});
 	ss.initClass($MimeGame_Client_Utils_CanvasInformation, $asm, {});
 	ss.initClass($MimeGame_Client_Utils_Constants, $asm, {});
 	ss.initClass($MimeGame_Client_Utils_Extensions, $asm, {});
+	ss.initClass($MimeGame_Client_Utils_Help, $asm, {});
 	ss.initClass($MimeGame_Client_Utils_Point, $asm, {});
 	ss.initClass($MimeGame_Client_Utils_Pointer, $asm, {}, $MimeGame_Client_Utils_Point);
-	ss.initClass($Triangles_Utility_Help, $asm, {});
+	$MimeGame_Client_Utils_Help.colors = ['#FF0000', '#00FF00', '#0000FF', '#880088', '#888800', '#008888'];
+	$TriangleModel.$pointUpPopNeighbors = [$MimeGame_Client_Utils_Point.$ctor(-1, 0), $MimeGame_Client_Utils_Point.$ctor(1, 0), $MimeGame_Client_Utils_Point.$ctor(0, -1), $MimeGame_Client_Utils_Point.$ctor(-1, -1), $MimeGame_Client_Utils_Point.$ctor(1, -1)];
+	$TriangleModel.$pointDownPopNeighbors = [$MimeGame_Client_Utils_Point.$ctor(-1, 0), $MimeGame_Client_Utils_Point.$ctor(1, 0), $MimeGame_Client_Utils_Point.$ctor(0, -1), $MimeGame_Client_Utils_Point.$ctor(-1, -1), $MimeGame_Client_Utils_Point.$ctor(1, -1)];
 	$MimeGame_Client_Controllers_$LevelSelectorController.$name = 'LevelSelectorController';
 	$MimeGame_Client_Controllers_$LevelSelectorController.$view = 'LevelSelector';
 	$MimeGame_Client_Utils_Constants.contentAddress = '';
 	$MimeGame_Client_Services_CreateUIService.name$1 = 'CreateUIService';
-	$Triangles_Utility_Help.colors = ['#FF0000', '#00FF00', '#0000FF', '#880088', '#888800', '#008888'];
-	$MimeGame_Client_Utils_CanvasInformation.$blackPixel = null;
-	$MimeGame_Client_Triangle.muliplyer = 0.6;
-	$MimeGame_Client_Triangle.triangleLength = 60;
-	$MimeGame_Client_Triangle.$pointUpNeighbors = [$MimeGame_Client_Utils_Point.$ctor(-1, 0), $MimeGame_Client_Utils_Point.$ctor(1, 0), $MimeGame_Client_Utils_Point.$ctor(-2, 0), $MimeGame_Client_Utils_Point.$ctor(2, 0), $MimeGame_Client_Utils_Point.$ctor(0, -1), $MimeGame_Client_Utils_Point.$ctor(-1, -1), $MimeGame_Client_Utils_Point.$ctor(1, -1), $MimeGame_Client_Utils_Point.$ctor(0, 1), $MimeGame_Client_Utils_Point.$ctor(-1, 1), $MimeGame_Client_Utils_Point.$ctor(1, 1), $MimeGame_Client_Utils_Point.$ctor(-2, 1), $MimeGame_Client_Utils_Point.$ctor(2, 1)];
-	$MimeGame_Client_Triangle.$pointDownNeighbors = [$MimeGame_Client_Utils_Point.$ctor(-1, 0), $MimeGame_Client_Utils_Point.$ctor(1, 0), $MimeGame_Client_Utils_Point.$ctor(-2, 0), $MimeGame_Client_Utils_Point.$ctor(2, 0), $MimeGame_Client_Utils_Point.$ctor(0, 1), $MimeGame_Client_Utils_Point.$ctor(-1, 1), $MimeGame_Client_Utils_Point.$ctor(1, 1), $MimeGame_Client_Utils_Point.$ctor(0, -1), $MimeGame_Client_Utils_Point.$ctor(-1, -1), $MimeGame_Client_Utils_Point.$ctor(1, -1), $MimeGame_Client_Utils_Point.$ctor(-2, -1), $MimeGame_Client_Utils_Point.$ctor(2, -1)];
-	$MimeGame_Client_TriangleGame.instance = null;
-	$MimeGame_Client_TriangleGame.offset = $MimeGame_Client_Utils_Point.$ctor(160, 70);
-	$MimeGame_Client_TriangleGame.size = $MimeGame_Client_Utils_Point.$ctor(1100, 850);
 	$MimeGame_Client_Controllers_$TriangleGameController.$name = 'TriangleGameController';
 	$MimeGame_Client_Controllers_$TriangleGameController.$view = 'TriangleGame';
+	$MimeGame_Client_Controllers_$TriangleGameController.$offset = $MimeGame_Client_Utils_Point.$ctor(160, 70);
+	$MimeGame_Client_Controllers_$TriangleGameController.$size = $MimeGame_Client_Utils_Point.$ctor(1100, 850);
+	$MimeGame_Client_Services_RaphaelPaperService.name$1 = 'RaphaelPaperService';
+	$MimeGame_Client_Directives_TriangleDirective.name$1 = 'triangle';
+	$MimeGame_Client_Directives_TriangleDirective.$triangleLength = 150;
+	$MimeGame_Client_Directives_TriangleDirective.$spacing = 35;
 	$MimeGame_Client_Directives_FancyListDirective.name$1 = 'fancyList';
 	$MimeGame_Client_Directives_FancyListIndexDirective.name$1 = 'fancyListIndex';
 	$MimeGame_Client_Directives_FancyHorizontalListDirective.name$1 = 'fancyHorizontalList';
 	$MimeGame_Client_Directives_FancyHorizontalListIndexDirective.name$1 = 'fancyHorizontalListIndex';
-	$MimeGame_Client_Directives_Canvas_CanvasAssetFrameDirective.name$1 = 'canvasAssetFrame';
 	$MimeGame_Client_Directives_DraggableDirective.name$1 = 'draggable';
 	$MimeGame_Client_Directives_FloatingWindowDirective.name$1 = 'floatingWindow';
 	$MimeGame_Client_Directives_FloatingWindowDirective.$items = new (ss.makeGenericType(ss.Dictionary$2, [Object, $MimeGame_Client_Scope_Directive_FloatingWindowScope]))();
@@ -1466,4 +1668,12 @@
 	$MimeGame_Client_BuildAngular.$http = '$http';
 	$MimeGame_Client_BuildAngular.$templateCache = '$templateCache';
 	$($MimeGame_Client_BuildAngular.setup);
+	$MimeGame_Client_TriangleGame.instance = null;
+	$MimeGame_Client_TriangleGame.offset = $MimeGame_Client_Utils_Point.$ctor(160, 70);
+	$MimeGame_Client_TriangleGame.size = $MimeGame_Client_Utils_Point.$ctor(1100, 850);
+	$MimeGame_Client_Triangle.triangleLength = 150;
+	$MimeGame_Client_Triangle.$pointUpNeighbors = [$MimeGame_Client_Utils_Point.$ctor(-1, 0), $MimeGame_Client_Utils_Point.$ctor(1, 0), $MimeGame_Client_Utils_Point.$ctor(-2, 0), $MimeGame_Client_Utils_Point.$ctor(2, 0), $MimeGame_Client_Utils_Point.$ctor(0, -1), $MimeGame_Client_Utils_Point.$ctor(-1, -1), $MimeGame_Client_Utils_Point.$ctor(1, -1), $MimeGame_Client_Utils_Point.$ctor(0, 1), $MimeGame_Client_Utils_Point.$ctor(-1, 1), $MimeGame_Client_Utils_Point.$ctor(1, 1), $MimeGame_Client_Utils_Point.$ctor(-2, 1), $MimeGame_Client_Utils_Point.$ctor(2, 1)];
+	$MimeGame_Client_Triangle.$pointDownNeighbors = [$MimeGame_Client_Utils_Point.$ctor(-1, 0), $MimeGame_Client_Utils_Point.$ctor(1, 0), $MimeGame_Client_Utils_Point.$ctor(-2, 0), $MimeGame_Client_Utils_Point.$ctor(2, 0), $MimeGame_Client_Utils_Point.$ctor(0, 1), $MimeGame_Client_Utils_Point.$ctor(-1, 1), $MimeGame_Client_Utils_Point.$ctor(1, 1), $MimeGame_Client_Utils_Point.$ctor(0, -1), $MimeGame_Client_Utils_Point.$ctor(-1, -1), $MimeGame_Client_Utils_Point.$ctor(1, -1), $MimeGame_Client_Utils_Point.$ctor(-2, -1), $MimeGame_Client_Utils_Point.$ctor(2, -1)];
+	$MimeGame_Client_Triangle.$pointUpPopNeighbors = [$MimeGame_Client_Utils_Point.$ctor(-1, 0), $MimeGame_Client_Utils_Point.$ctor(1, 0), $MimeGame_Client_Utils_Point.$ctor(0, -1), $MimeGame_Client_Utils_Point.$ctor(-1, -1), $MimeGame_Client_Utils_Point.$ctor(1, -1)];
+	$MimeGame_Client_Triangle.$pointDownPopNeighbors = [$MimeGame_Client_Utils_Point.$ctor(-1, 0), $MimeGame_Client_Utils_Point.$ctor(1, 0), $MimeGame_Client_Utils_Point.$ctor(0, -1), $MimeGame_Client_Utils_Point.$ctor(-1, -1), $MimeGame_Client_Utils_Point.$ctor(1, -1)];
 })();

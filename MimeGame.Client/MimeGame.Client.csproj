@@ -33,15 +33,16 @@
   <ItemGroup>
     <Compile Include="BuildAngular.cs" />
     <Compile Include="Controllers\TriangleGameController.cs" />
+    <Compile Include="Directives\TriangleDirective.cs" />
     <Compile Include="Raphael.cs" />
     <Compile Include="Scope\Controller\TriangleGameScope.cs" />
     <Compile Include="Scope\Directive\Canvas\CanvasAssetFrameScope.cs" />
+    <Compile Include="Scope\Directive\TriangleDirectiveScope.cs" />
     <Compile Include="Triangle.cs" />
     <Compile Include="TriangleGame.cs" />
     <Compile Include="Utils\CanvasInformation.cs" />
     <Compile Include="Utils\Constants.cs" />
     <Compile Include="Controllers\LevelSelectorController.cs" />
-    <Compile Include="Directives\Canvas\CanvasAssetFrameDirective.cs" />
     <Compile Include="Directives\DraggableDirective.cs" />
     <Compile Include="Directives\FancyHorizontalListDirective.cs" />
     <Compile Include="Directives\FancyHorizontalListIndexDirective.cs" />
@@ -83,6 +84,10 @@
     <ProjectReference Include="..\WebLibraries\AngularJS\AngularJS.csproj">
       <Project>{815CC797-F742-4C48-8C98-BD7DE050D95A}</Project>
       <Name>AngularJS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WebLibraries\CommonWebLibraries\CommonWebLibraries.csproj">
+      <Project>{6DA30112-FDBD-4E48-9F52-7268FCE19D25}</Project>
+      <Name>CommonWebLibraries</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

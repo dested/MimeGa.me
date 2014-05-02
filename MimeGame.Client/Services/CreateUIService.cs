@@ -10,6 +10,29 @@ using ng;
 
 namespace MimeGame.Client.Services
 {
+
+    public class RaphaelPaperService
+    {
+        public const string Name = "RaphaelPaperService";
+        private CanvasInformation canvas;
+     
+
+        public void Create(int width, int height)
+        {
+            var div=Document.CreateElement("div");
+            Document.Body.AppendChild(div);
+
+            canvas = CanvasInformation.Create(div, width, height);
+            canvas.Canvas.AddEvent("contextmenu", (evt) => evt.PreventDefault());
+        }
+        public CanvasInformation GetCanvas()
+        {
+            return canvas;
+        }
+    }
+
+
+
     public class CreateUIService
     {
         public const string Name = "CreateUIService";

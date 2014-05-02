@@ -2,7 +2,6 @@
 using System.Html;
 using System.Runtime.CompilerServices;
 using MimeGame.Client.Utils;
-using Triangles.Utility;
 
 namespace MimeGame.Client
 {
@@ -11,8 +10,8 @@ namespace MimeGame.Client
         public static TriangleGame Instance;
         public static Point Offset = new Point(160, 70);
         public static Point Size = new Point(1100, 850);
-        private int boardHeight = 6;
-        private int boardWidth = 11;
+        private int boardHeight = 4;
+        private int boardWidth = 7;
         private int drawTick;
         private CanvasInformation myCanvas;
         private Triangle[][] myTriangleGrid;
@@ -23,7 +22,6 @@ namespace MimeGame.Client
             Instance = this;
             myCanvas = CanvasInformation.Create(Document.GetElementById("cnvGameBoard"), Size.X, Size.Y);
             myCanvas.Canvas.AddEvent("contextmenu", (evt) => { evt.PreventDefault(); });
-
 
             init();
             Window.SetInterval(drawBoard, 1000 / 60);
@@ -51,7 +49,7 @@ namespace MimeGame.Client
                     {
                         if (myTriangleList[l].Selected == true)
                         {
-                            myTriangleList[l].Selected = false;
+                            myTriangleList[l].Pop();
                         }
                         else
                         {
@@ -67,7 +65,7 @@ namespace MimeGame.Client
  
         private void dropTriangles()
         {
-            if (drawTick % 3 != 0) return;
+            if (drawTick % 8 != 0) return;
 
             bool didPointUp = false;
             bool bad = true;
@@ -105,12 +103,13 @@ namespace MimeGame.Client
 
                 if (y == 0 && !current.PointUp)
                 {
+
                     current.TransitionTo(Help.GetRandomColor());
 
                     return noMoves;
                 }
 
-                var neighbors = current.GetNeighbors(myTriangleGrid);
+                var neighbors = current.GetPopNeighbors(myTriangleGrid);
                 foreach (var neighbor in neighbors.TakeRandom())
                 {
                     if (neighbor.Y == current.Y)
@@ -177,26 +176,10 @@ namespace MimeGame.Client
         {
             drawTick++;
             dropTriangles();
-
-            myCanvas.Canvas.Style.BackgroundColor = "#343434";
-
             for (int l = 0; l < myTriangleList.Count; l++)
             {
                 myTriangleList[l].Draw(myCanvas.Context);
             }
         }
     }
-    internal class TriangleMove
-    {
-        [IntrinsicProperty]
-        public Point Location { get; set; }
-        [IntrinsicProperty]
-        public string Color { get; set; }
-
-        public TriangleMove(Point location, string color)
-        {
-            Location = location;
-            Color = color;
-        }
-    }
-}
+ }

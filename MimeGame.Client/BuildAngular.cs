@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Html;
 using System.Runtime.CompilerServices;
+using CommonWebLibraries;
 using jQueryApi;
 using MimeGame.Client.Controllers;
 using MimeGame.Client.Directives;
-using MimeGame.Client.Directives.Canvas;
 using MimeGame.Client.Filters;
 using MimeGame.Client.Scope.Controller;
 using MimeGame.Client.Services;
@@ -29,17 +29,21 @@ namespace MimeGame.Client
         {
 
 
+            var stats = new XStats();
+            Document.Body.AppendChild(stats.Element);
+
 
             var module = angular.Module("MimeGame", new string[] {"ui.utils", "ui.bootstrap"})
                 .Config(new object[] {"$httpProvider", new Action<dynamic>(buildHttpProvider)})
                 .Controller(LevelSelectorController.Name, new object[] { ScopeName, CreateUIService.Name, new Func<LevelSelectorScope, CreateUIService, object>((scope, createUIService) => new LevelSelectorController(scope, createUIService)) })
-                .Controller(TriangleGameController.Name, new object[] { ScopeName, CreateUIService.Name, new Func<TriangleGameScope, object>((scope) => new TriangleGameController(scope)) })
-                .Service(CreateUIService.Name, new object[] {CompileName, RootScopeName, new Func<CompileService, IRootScopeService, object>((compileService, rootScopeService) => new CreateUIService(compileService, rootScopeService))})
-                .Directive(FancyListDirective.Name, new object[] {new Func<object>(() => new FancyListDirective())})
+                .Controller(TriangleGameController.Name, new object[] { ScopeName, RaphaelPaperService.Name,new Func<TriangleGameScope,RaphaelPaperService, object>((scope,paperService) => new TriangleGameController(scope,paperService)) })
+                .Service(CreateUIService.Name, new object[] { CompileName, RootScopeName, new Func<CompileService, IRootScopeService, object>((compileService, rootScopeService) => new CreateUIService(compileService, rootScopeService)) })
+                .Service(RaphaelPaperService.Name, new object[] { new Func<object>(() => new RaphaelPaperService()) })
+                .Directive(TriangleDirective.Name, new object[] { RaphaelPaperService.Name, new Func<RaphaelPaperService, object>((paperService) => new TriangleDirective(paperService)) })
+                .Directive(FancyListDirective.Name, new object[] { new Func<object>(() => new FancyListDirective()) })
                 .Directive(FancyListIndexDirective.Name, new object[] {new Func<object>(() => new FancyListIndexDirective())})
                 .Directive(FancyHorizontalListDirective.Name, new object[] {new Func<object>(() => new FancyHorizontalListDirective())})
                 .Directive(FancyHorizontalListIndexDirective.Name, new object[] {new Func<object>(() => new FancyHorizontalListIndexDirective())})
-                .Directive(CanvasAssetFrameDirective.Name, new object[] {new Func<object>(() => new CanvasAssetFrameDirective())})
                 .Directive(DraggableDirective.Name, new object[] {new Func<object>(() => new DraggableDirective())})
                 .Directive(FloatingWindowDirective.Name, new object[] {new Func<object>(() => new FloatingWindowDirective())})
                 .Directive(ForNextDirective.Name, new object[] {new Func<object>(() => new ForNextDirective())})

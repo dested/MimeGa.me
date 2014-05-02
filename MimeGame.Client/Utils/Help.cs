@@ -1,9 +1,8 @@
 using System;
 using System.Html;
 using jQueryApi;
-using MimeGame.Client.Utils;
 
-namespace Triangles.Utility
+namespace MimeGame.Client.Utils
 {
     public static class Help
     {
@@ -19,12 +18,12 @@ namespace Triangles.Utility
             _end = _end.Substring(1, 7);
 
             var r1 = hex2Dec(_start.Substring(0, 2));
-            var g1 = hex2Dec(_start.Substring(2, 4));
-            var b1 = hex2Dec(_start.Substring(4, 6));
+            var g1 = hex2Dec(_start.Substring(2, 2));
+            var b1 = hex2Dec(_start.Substring(4, 2));
 
             var r2 = hex2Dec(_end.Substring(0, 2));
-            var g2 = hex2Dec(_end.Substring(2, 4));
-            var b2 = hex2Dec(_end.Substring(4, 6));
+            var g2 = hex2Dec(_end.Substring(2, 2));
+            var b2 = hex2Dec(_end.Substring(4, 2));
 
             var pc = _percent / 100.0;
 
@@ -38,7 +37,7 @@ namespace Triangles.Utility
         public static Pointer GetCursorPosition(Event ev)
         {
             if (ev.Me().originalEvent && ev.Me().originalEvent.targetTouches && ev.Me().originalEvent.targetTouches.length > 0) ev = ev.Me().originalEvent.targetTouches[0];
-            return new Pointer(0, 0, ev.Me().wheelDelta ? ev.Me().wheelDelta / 40 : ev.Me().detail ? -ev.Me().detail : 0, ev.Me().Button== 2);
+            return new Pointer(0, 0, ev.Me().wheelDelta ? ev.Me().wheelDelta / 40 : ev.Me().detail ? -ev.Me().detail : 0, ev.Me().button== 2);
         }
 
         public static string GetRandomColor()

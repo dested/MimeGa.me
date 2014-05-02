@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Html;
 using System.Runtime.CompilerServices;
 using MimeGame.Client.Utils;
-using Triangles.Utility;
 
 namespace MimeGame.Client
 {
@@ -23,9 +22,8 @@ namespace MimeGame.Client
     }
     public class Triangle
     {
-        public const double muliplyer = 0.6;
-        public const int TriangleLength = (int)(100 * muliplyer);
-        private int spacing = (int)(32 * muliplyer);
+        public const int TriangleLength = (int)(150 );
+        private int spacing = 35;
         private string transitionToColor;
         public int transitioning;
         [IntrinsicProperty]
@@ -77,22 +75,9 @@ namespace MimeGame.Client
 
         public void Draw(RaphaelPaper _context)
         {
-            string strokeStyle = "";
-            int lineWidth = 0;
 
-            //worst code
-                if (Selected) strokeStyle = "#FAFAFA";
-                else
-                {
-                    if (Glow) strokeStyle = "gold";
-                    else strokeStyle = "black";
-                }
-                if (Selected) lineWidth = 5;
-                else
-                {
-                    if (Glow) lineWidth = 4;
-                    else lineWidth = 3;
-                }
+            string strokeStyle = Selected ? "#FAFAFA" : (Glow ? "gold" : "black");
+            int lineWidth = Selected ? 18 : (Glow ? 16 : 14);
 
             var currentColor = GetCurrentColor();
             if (currentColor == null)
@@ -102,10 +87,6 @@ namespace MimeGame.Client
                 Element = null;
                 return;
             }
-            //  _context.ShadowColor ="black";
-            //  _context.ShadowBlur = 20;
-            //  _context.ShadowOffsetX = ((mouseX - TriangleGame.Offset.X - TriangleGame.Size.X / 2.0) / TriangleLength / 2)*5;
-            //  _context.ShadowOffsetY = ((mouseY - TriangleGame.Offset.Y - TriangleGame.Size.Y / 2.0) / TriangleLength)*5;
 
             string fillStyle = currentColor;
 
@@ -117,12 +98,9 @@ namespace MimeGame.Client
                     var y = Y;
 
                     var xxx = x * TriangleLength + x * spacing - spacing / 2.0f + TriangleGame.Offset.X;
-                    var yyy = y * TriangleLength + y * spacing / 2 + TriangleGame.Offset.Y;
+                    var yyy = y * TriangleLength + y * (spacing-3) / 2 + TriangleGame.Offset.Y;
 
-                    if (Selected)
-                    {
-                        //  ctx.rotate((cur+=3)*Math.PI/180); 
-                    }
+ 
                     Element = _context.Path("M" + xxx + " " + yyy + "L" + (xxx + TriangleLength / 2) + " " + (yyy + TriangleLength) + "L" + (xxx - TriangleLength / 2) + " " + (yyy + TriangleLength) + "L" + (xxx) + " " + (yyy));
                 }
                 else
@@ -131,12 +109,9 @@ namespace MimeGame.Client
                     var y = Y;
 
                     var xxx = x * TriangleLength + x * spacing + TriangleGame.Offset.X;
-                    var yyy = y * TriangleLength + y * spacing / 2 + TriangleGame.Offset.Y;
+                    var yyy = y * TriangleLength + y * (spacing - 3) / 2 + TriangleGame.Offset.Y;
 
-                    if (Selected)
-                    {
-                        //  ctx.rotate((cur+=3)*Math.PI/180); 
-                    }
+                
                     Element = _context.Path("M" + xxx + " " + yyy + "L" + (xxx + TriangleLength) + " " + (yyy) + "L" + (xxx + TriangleLength / 2) + " " + (yyy + TriangleLength) + "L" + (xxx) + " " + (yyy));
                 }
 
@@ -185,44 +160,7 @@ namespace MimeGame.Client
                 });
 
             }
-
-            lineWidth *= 2;
             Element.Attribute(new RaphaelElementAttributes() { Fill = fillStyle, StrokeWidth = lineWidth, Stroke = strokeStyle });
-
-            /*
-
-                        if (Glow) {
-                            _context.LineWidth = 8;
-                            if (transitioning > 0) _context.StrokeStyle = "white";
-                            else _context.StrokeStyle = "black";
-                            _context.Stroke();
-                            _context.LineWidth = 4;
-                            _context.StrokeStyle = "gold";
-                            _context.Stroke();
-                        } else if (Selected) {
-                            _context.Stroke();
-                            _context.LineWidth = 4;
-                            _context.StrokeStyle = "black";
-                            _context.Stroke();
-                        } else
-                            _context.Stroke();
-
-                        if (( Neighbors || HighlightedNeighbors ) && !Glow) {
-                            _context.LineWidth = 2;
-                            _context.StrokeStyle = "#345782";
-                            _context.Stroke();
-                        }
-                        if (Neighbors) {
-                            _context.StrokeStyle = "black";
-                            _context.LineWidth = 9;
-                            _context.Stroke();
-
-                            _context.StrokeStyle = "white";
-                            _context.LineWidth = 4;
-                            _context.Stroke();
-                        }
-            */
-
         }
 
         public void Pop()
@@ -243,7 +181,7 @@ namespace MimeGame.Client
                                                                                new Point(-2, +1),
                                                                                new Point(+2, +1)
                                                                        };
-        private static Point[] PointDownNeighbors = new Point[] {
+        private static readonly Point[] PointDownNeighbors = new Point[] {
                                                                         new Point(-1, +0),
                                                                         new Point(+1, +0),
                                                                         new Point(-2, +0),
@@ -258,6 +196,42 @@ namespace MimeGame.Client
                                                                         new Point(+2, -1)
                                                                 };
 
+
+        private static readonly Point[] PointUpPopNeighbors = new Point[] {
+                                                                               new Point(-1, +0),
+                                                                               new Point(+1, +0),
+                                                                               new Point(+0, -1),
+                                                                               new Point(-1, -1),
+                                                                               new Point(+1, -1)
+                                                                       };
+        private static readonly Point[] PointDownPopNeighbors = new Point[] {
+                                                                        new Point(-1, +0),
+                                                                        new Point(+1, +0),
+                                                                        new Point(+0, -1),
+                                                                        new Point(-1, -1),
+                                                                        new Point(+1, -1),
+                                                                };
+
+        public List<Triangle> GetPopNeighbors(Triangle[][] _board)
+        {
+            Point[] neighs;
+            if (PointUp) neighs = PointUpPopNeighbors;
+            else neighs = PointDownPopNeighbors;
+            List<Triangle> result = new List<Triangle>();
+
+            for (var i = 0; i < neighs.Length; i++)
+            {
+                var cX = X + neighs[i].X;
+                var cY = Y + neighs[i].Y;
+
+                if (cX >= 0 && cX < _board.Length && cY >= 0 && cY < _board[0].Length)
+                {
+                    if (_board[cX][cY].Color != null)
+                        result.Add(_board[cX][cY]);
+                }
+            }
+            return result;
+        }
         public List<Triangle> GetNeighbors(Triangle[][] _board)
         {
             Point[] neighs;
