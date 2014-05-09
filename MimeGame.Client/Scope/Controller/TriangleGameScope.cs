@@ -54,7 +54,6 @@ public class TriangleModel
 
     public static void TransitionTo(TriangleModel current, string color)
     {
-
         current.TransitionToColor = color;
         current.Transitioning = 1;
     }
@@ -63,16 +62,9 @@ public class TriangleModel
     private static readonly Point[] PointUpPopNeighbors = new Point[] {
                                                                                new Point(-1, +0),
                                                                                new Point(+1, +0),
-                                                                               new Point(+0, -1),
-                                                                               new Point(-1, -1),
-                                                                               new Point(+1, -1)
                                                                        };
     private static readonly Point[] PointDownPopNeighbors = new Point[] {
-                                                                        new Point(-1, +0),
-                                                                        new Point(+1, +0),
                                                                         new Point(+0, -1),
-                                                                        new Point(-1, -1),
-                                                                        new Point(+1, -1),
                                                                 };
 
     public static List<TriangleModel> GetPopNeighbors(TriangleModel current, TriangleModel[][] board)
@@ -100,6 +92,7 @@ public class TriangleModel
            {
                var updated = false;
             var increase = 15;
+               if (triangleModel.Color == null) return false;
             if (triangleModel.Transitioning + increase >= 100)
             {
                 triangleModel.Color = triangleModel.TransitionToColor;

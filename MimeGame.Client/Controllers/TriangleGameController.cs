@@ -30,7 +30,7 @@ namespace MimeGame.Client.Controllers
             this.scope.Model.SelectedTriangles = new List<TriangleModel>();
 
             paperService.Create(Size.X, Size.Y);
-
+            
             init();
             this.scope.Callback.OnMouseDown += OnMouseDown;
             this.scope.Callback.OnMouseOver += OnMouseOver;
@@ -121,7 +121,7 @@ namespace MimeGame.Client.Controllers
 
         private bool dropTriangles()
         {
-            if (drawTick % 8 != 0) return false;
+            if (drawTick % 4 != 0) return false;
             bool didPointUp = false;
             bool bad = true;
             while (bad)
@@ -135,11 +135,17 @@ namespace MimeGame.Client.Controllers
                     for (int x = boardWidth / 2; x >= 0; x--)
                     {
                         noMoves = popTris(x, y, didPointUp, noMoves, ref poppedThisRow, ref bad);
+
+                        if (poppedThisRow)
+                            return true;
                     }
 
                     for (int x = boardWidth / 2; x < boardWidth; x++)
                     {
                         noMoves = popTris(x, y, didPointUp, noMoves, ref poppedThisRow, ref bad);
+
+                        if (poppedThisRow)
+                            return true;
                     }
                     if (poppedThisRow)
                         return true;
@@ -161,6 +167,7 @@ namespace MimeGame.Client.Controllers
                 if (y == 0 && !current.PointUp)
                 {
                     TriangleModel.TransitionTo(current, Help.GetRandomColor());
+                    poppedThisRow = true;
                     return noMoves;
                 }
 
@@ -171,6 +178,7 @@ namespace MimeGame.Client.Controllers
                     {
                         if (!neighbor.PointUp && current.PointUp)
                         {
+                            current.Color = "#FFFFFF";
                             TriangleModel.TransitionTo(current, neighbor.Color);
                             neighbor.Pop = true;
                             noMoves = false;
@@ -180,6 +188,7 @@ namespace MimeGame.Client.Controllers
                     }
                     else if (neighbor.Y < current.Y)
                     {
+                        current.Color = "#FFFFFF";
                         TriangleModel.TransitionTo(current, neighbor.Color);
                         neighbor.Pop = true;
                         noMoves = false;

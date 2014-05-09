@@ -47,6 +47,9 @@
 	$TriangleModel.setCurrentColor = function(triangleModel) {
 		var updated = false;
 		var increase = 15;
+		if (ss.isNullOrUndefined(triangleModel.color)) {
+			return false;
+		}
 		if (triangleModel.transitioning + increase >= 100) {
 			triangleModel.color = triangleModel.transitionToColor;
 			triangleModel.transitioning = 0;
@@ -1126,7 +1129,7 @@
 			}
 		},
 		$dropTriangles: function() {
-			if (this.$drawTick % 8 !== 0) {
+			if (this.$drawTick % 4 !== 0) {
 				return false;
 			}
 			var didPointUp = false;
@@ -1138,9 +1141,15 @@
 					var poppedThisRow = { $: false };
 					for (var x = ss.Int32.div(this.$boardWidth, 2); x >= 0; x--) {
 						noMoves = this.$popTris(x, y, didPointUp, noMoves, poppedThisRow, bad);
+						if (poppedThisRow.$) {
+							return true;
+						}
 					}
 					for (var x1 = ss.Int32.div(this.$boardWidth, 2); x1 < this.$boardWidth; x1++) {
 						noMoves = this.$popTris(x1, y, didPointUp, noMoves, poppedThisRow, bad);
+						if (poppedThisRow.$) {
+							return true;
+						}
 					}
 					if (poppedThisRow.$) {
 						return true;
@@ -1161,6 +1170,7 @@
 				}
 				if (y === 0 && !current.pointUp) {
 					$TriangleModel.transitionTo(current, $MimeGame_Client_Utils_Help.getRandomColor());
+					poppedThisRow.$ = true;
 					return noMoves;
 				}
 				var neighbors = $TriangleModel.getPopNeighbors(current, this.$scope.model.triangleGrid);
@@ -1169,6 +1179,7 @@
 					var neighbor = $t1[$t2];
 					if (neighbor.y === current.y) {
 						if (!neighbor.pointUp && current.pointUp) {
+							current.color = '#FFFFFF';
 							$TriangleModel.transitionTo(current, neighbor.color);
 							neighbor.pop = true;
 							noMoves = false;
@@ -1177,6 +1188,7 @@
 						}
 					}
 					else if (neighbor.y < current.y) {
+						current.color = '#FFFFFF';
 						$TriangleModel.transitionTo(current, neighbor.color);
 						neighbor.pop = true;
 						noMoves = false;
@@ -1637,8 +1649,8 @@
 	ss.initClass($MimeGame_Client_Utils_Point, $asm, {});
 	ss.initClass($MimeGame_Client_Utils_Pointer, $asm, {}, $MimeGame_Client_Utils_Point);
 	$MimeGame_Client_Utils_Help.colors = ['#FF0000', '#00FF00', '#0000FF', '#880088', '#888800', '#008888'];
-	$TriangleModel.$pointUpPopNeighbors = [$MimeGame_Client_Utils_Point.$ctor(-1, 0), $MimeGame_Client_Utils_Point.$ctor(1, 0), $MimeGame_Client_Utils_Point.$ctor(0, -1), $MimeGame_Client_Utils_Point.$ctor(-1, -1), $MimeGame_Client_Utils_Point.$ctor(1, -1)];
-	$TriangleModel.$pointDownPopNeighbors = [$MimeGame_Client_Utils_Point.$ctor(-1, 0), $MimeGame_Client_Utils_Point.$ctor(1, 0), $MimeGame_Client_Utils_Point.$ctor(0, -1), $MimeGame_Client_Utils_Point.$ctor(-1, -1), $MimeGame_Client_Utils_Point.$ctor(1, -1)];
+	$TriangleModel.$pointUpPopNeighbors = [$MimeGame_Client_Utils_Point.$ctor(-1, 0), $MimeGame_Client_Utils_Point.$ctor(1, 0)];
+	$TriangleModel.$pointDownPopNeighbors = [$MimeGame_Client_Utils_Point.$ctor(0, -1)];
 	$MimeGame_Client_Controllers_$LevelSelectorController.$name = 'LevelSelectorController';
 	$MimeGame_Client_Controllers_$LevelSelectorController.$view = 'LevelSelector';
 	$MimeGame_Client_Utils_Constants.contentAddress = '';
